@@ -29,4 +29,17 @@
 ```
     添加 husky
     yarn add husky -D
+    {
+        "devDependencies": {
+            "husky": "^3.1.0",
+            "ts-node": "^8.5.2",
+            "tslint": "^5.20.1",
+            "typescript": "^3.7.2"
+        },
+        "husky": {
+            "hooks": {
+            "pre-commit": "yarn tslint -c tslint.json'./**/*.ts'"
+            }
+        }
+    }
 
