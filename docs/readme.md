@@ -1,4 +1,4 @@
-#初始化项目
+## 初始化项目
 ```
     mkdir 5-ts-weather
 
@@ -8,7 +8,7 @@
 
     yarn ts-node index.ts
 ```
-# 配置TSConfig
+## 配置TSConfig
 ```
     yarn tsc -init
     本次项目实践中，我们主要讲解 targer、module、strict 和 esModuleInterop 四个默认开启项：
@@ -17,7 +17,7 @@
         strict：指开启 JavaScript 的严格模式。
         esModuleInterop：指允许从没有设置默认导出的模块中默认导入。这并不影响代码的显示，仅为了类型检查。
 ```
-# 配置 TSLint
+## 配置 TSLint
 ```
     TSLint 是 TypeScript 代码的样式风格检查工具。类似于 JavaScript 的 ESLint，或者Ruby的Rubocop。
 
@@ -25,7 +25,7 @@
     安装完成后，与  TSConfig 一样，也可以使用命令初始化 TSLint 的配置工具：
     yarn tslint --init
 ```
-# 使用git
+## 使用git
 ```
     添加 husky
     yarn add husky -D
