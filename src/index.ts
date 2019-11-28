@@ -11,4 +11,10 @@ command
     .option('-c, --city [name]', 'Add city name');
 command.parse(process.argv);
 
-console.log(command.city)
+// if (!command.city) {
+//     command.outputHelp();
+// }
+if (process.argv.slice(2).length === 0) {
+    command.outputHelp()
+    process.exit()
+}

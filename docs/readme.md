@@ -72,12 +72,14 @@
     下面我们来了解一下，如何更好地进行输入输出。
     https://github.com/yingxiangjipo/commander.js/blob/master/Readme.md
 
+    灵活一点
+        if (process.argv.slice(2).length === 0) {
+            command.outputHelp()
+            process.exit()
+        }
+```
+#### 添加色彩
+```
+    yarn add colors
     
-
-
-
-
-
-
-
 ```
