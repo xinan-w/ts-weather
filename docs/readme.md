@@ -43,7 +43,7 @@
         }
     }
 ```
-#### 格式化命令
+### 格式化命令
 ```
     Git是支持很多命令的，可以支持版本查询（--version），可以支持路径（--exec-path）
     我们的天气应用开发同理，也需要支持命令的可拓展性。
@@ -78,8 +78,124 @@
             process.exit()
         }
 ```
-#### 添加色彩
+### 添加色彩
 ```
-    yarn add colors
-    
+    yarn add colors -D
+
 ```
+
+### 处理网络请求
+```
+    处理完输入，终于可以写业务代码了，接下来我们使用 Promise 和 async 两种方式实现。
+```
+#### 定义接口
+```
+    http://restapi.amap.com/v3/weather/weatherInfo?key=你的key&city=成都
+```
+#### Promise
+```
+    可以引入现在最流行的 axios 来处理网络请求：
+    yarn add axios
+
+    然后使用经典的 Promise 写法：
+
+        import axios from 'axios'
+        import colors from 'colors'
+        import commander from 'commander'
+
+        const command = commander
+            .version('0.1.0')
+            .option('-c, --city [name]', 'Add city name')
+            .parse(process.argv);
+
+        if (process.argv.slice(2).length===0) {
+            command.outputHelp(colors.red);
+            process.exit();
+        }
+
+        interface IWeatherResponse {
+            status: string
+            count: string
+            info: string
+            infocode: string
+            lives: ILive[]
+        }
+
+        interface ILive {
+            province: string
+            city: string
+            adcode: string
+            weather: string
+            temperature: string
+            winddirection: string
+            windpower: string
+            humidity: string
+            reporttime: string
+        }
+
+        const URL = 'http://restapi.amap.com/v3/weather/weatherInfo'
+        const KEY = '50908fe3a5c05e8d40366ba2e20014cf'
+
+        axios.get(`${URL}?city=${encodeURI(command.city)}&key=${KEY}`)
+            .then((res)=>{
+                // (property) AxiosResponse<any>.data:any
+                console.log(colors.green(res.data))
+            })
+
+    此时，你会发现如果继续执行 res.data，是无法进行返回值提示的。
+
+    如果你把光标移动到 res.data 的头上，你会看到 data 的类型是 any。为什么 TypeScript不能根据返回值自己推断出类型呢？
+    因为 TypeScript 不够聪明，它并不能根据运行时进行推断，它只能在编译时根据上下文来猜测类型，但幸运的是，我们可以覆写 any ，像如下这样：
+
+    import axios, { AxiosResponse } from 'axios'
+
+    ...
+
+    axios.get(`${URL}?city=${encodeURI(command.city)}&key=${KEY}`)
+    .then((res: AxiosResponse<IWeatherResponse>) => {
+        // (property) IWeatherResponse.lives: ILive[]
+        coonsole.log
+    })
+
+    这个时候你可以放心大胆地点下去了，享受自动补全的快乐。加一点颜色来格式化输出：
+
+    const log = console.log;
+    axios.get(`${URL}?city=${encodeURI(command.city)}&key=${KEY}`)
+    .then((res: AxiosResponse<IWeatherResponse>) => {
+        // (property) IWeatherResponse.lives: ILive[]
+        const live = res.data.lives[0]
+        log(colors.rainbow(`${live}`))
+        log(colors.yellow(`报道时间：${live.reporttime}`))
+        log(colors.white(`省份：${live.province}`))
+        log(colors.bgCyan(`城市：${live.city}`))
+        log(colors.green(`天气：${live.weather}`))
+        log(colors.bgYellow(`温度：${live.temperature}°C`))
+    })
+
+    一切好像又有点完美了，但似乎少了点什么。如果请求 API 少了点什么。如果请求 API 的时候出现异常，怎么办？目前没有处理！继续进行异常处理：
+
+    .catch(()=>{
+        log(colors.red('天气服务出现异常'))
+    })
+    这样才是一个完整的 Promise 使用，足够简健壮！
+```
+#### await 和 async
+```
+    接下来，我们来看一下 TypeScript 中，如何使用 await 和 async：
+    const log = console.log
+    async function getWeather(city: string) {
+        try {
+            const url = `${URL}?city=${encodeURI(city)}&key=${KEY}`
+            const response = await axios.get(url)
+            const live = response.data.lives[0]
+            log(colors.yellow(live.reporttime))
+            log(colors.white(`${live.province} ${live.city}`))
+            log(colors.green(`${live.weather} ${live.temperature}`))
+        } catch (error) {
+            log(colors.red('天气服务出现异常'))
+        }
+    }
+
+    getWeather(command.city)
+
+    实际使用起来与JavaScript并没有什么不同，保持了非常强的一致性。
